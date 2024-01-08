@@ -13,9 +13,9 @@ sudo yum info fence-agents-azure-arm
 #Insert the following lines to /etc/hosts. Change the IP address and hostname to match your environment
 
 echo '# IP address of the first cluster node
-10.0.0.6 prod-cl1-0
+10.0.0.6 node0
 # IP address of the second cluster node
-10.0.0.7 prod-cl1-1' | sudo tee -a /etc/hosts
+10.0.0.7 node1' | sudo tee -a /etc/hosts
 
 
 #Change hacluster password to the same password

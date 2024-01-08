@@ -7,8 +7,8 @@ echo "Script execution started at: $timestamp"
 #set -x
 
 
-vmname1="prod-cl1-0"
-vmname2="prod-cl1-1"
+vmname1="node0"
+vmname2="node1"
 rgname="rhel-ha"
 offer="RedHat:RHEL-SAP-HA:8.2:latest"
 loc="eastus"
@@ -64,14 +64,14 @@ az vm extension set \
     --vm-name $vmname1 \
     --name customScript \
     --publisher Microsoft.Azure.Extensions \
-    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/spalnatik/rhelha/main/install.sh"],"commandToExecute": "./install.sh"}' >> $logfile 
+    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/esanchezvela/rhelha/main/install.sh"],"commandToExecute": "./install.sh"}' >> $logfile 
 
     az vm extension set \
     --resource-group $rgname \
     --vm-name $vmname2 \
     --name customScript \
     --publisher Microsoft.Azure.Extensions \
-    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/spalnatik/rhelha/main/install.sh"],"commandToExecute": "./install.sh"}' >> $logfile 
+    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/esanchezvela/rhelha/main/install.sh"],"commandToExecute": "./install.sh"}' >> $logfile 
 
 
 echo " Creating Pacemaker cluster on node1"
@@ -85,7 +85,7 @@ if [[ "$version" =~ ^7[._][1-9] ]]; then
     --vm-name $vmname1 \
     --name customScript \
     --publisher Microsoft.Azure.Extensions \
-    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/spalnatik/rhelha/main/pc7.sh"],"commandToExecute": "./pc7.sh"}' >> $logfile >> $logfile
+    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/esanchezvela/rhelha/main/pc7.sh"],"commandToExecute": "./pc7.sh"}' >> $logfile >> $logfile
 
 elif [[ "$version" =~ ^8[._][1-9] ]]; then
     echo "The offer is rhel8 image"
@@ -94,7 +94,7 @@ elif [[ "$version" =~ ^8[._][1-9] ]]; then
     --vm-name $vmname1 \
     --name customScript \
     --publisher Microsoft.Azure.Extensions \
-    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/spalnatik/rhelha/main/createpc.sh"],"commandToExecute": "./createpc.sh"}' >> $logfile >> $logfile
+    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/esanchezvela/rhelha/main/createpc.sh"],"commandToExecute": "./createpc.sh"}' >> $logfile >> $logfile
 else
     echo "The offer version is not in the 7.x or 8.x "
     # Add your desired action here for other versions (if needed)
@@ -105,7 +105,7 @@ fi
 
 #echo "Create a custom role for the fence agent"
 # Set the URL of the custom role JSON in a variable
-#role_definition_url="https://raw.githubusercontent.com/spalnatik/rhelha/main/customrole.json" >> $logfile
+#role_definition_url="https://raw.githubusercontent.com/esanchezvela/rhelha/main/customrole.json" >> $logfile
 
 # Download the JSON file from the URL and save it as a local file
 #curl -o customrole.json $role_definition_url >> $logfile 
@@ -122,19 +122,19 @@ subscriptionID=$(az group show --name "rhel-ha" --query "id" --output tsv | cut 
 
 echo "add role assignment to node1"
 
-spID=$(az resource list  --resource-group "rhel-ha" -n "prod-cl1-0" --query [*].identity.principalId --out tsv) >> $logfile
+spID=$(az resource list  --resource-group "rhel-ha" -n "node0" --query [*].identity.principalId --out tsv) >> $logfile
 
-az role assignment create --assignee $spID --role 'Virtual Machine Contributor' --scope /subscriptions/$subscriptionID/resourceGroups/$rgname/providers/Microsoft.Compute/virtualMachines/prod-cl1-0 >> $logfile
+az role assignment create --assignee $spID --role 'Virtual Machine Contributor' --scope /subscriptions/$subscriptionID/resourceGroups/$rgname/providers/Microsoft.Compute/virtualMachines/node0 >> $logfile
 
-az role assignment create --assignee $spID --role 'Virtual Machine Contributor' --scope /subscriptions/$subscriptionID/resourceGroups/$rgname/providers/Microsoft.Compute/virtualMachines/prod-cl1-1 >> $logfile
+az role assignment create --assignee $spID --role 'Virtual Machine Contributor' --scope /subscriptions/$subscriptionID/resourceGroups/$rgname/providers/Microsoft.Compute/virtualMachines/node1 >> $logfile
 
 echo "role assignment to node2"
 
-spID1=$(az resource list  --resource-group "rhel-ha" -n "prod-cl1-1" --query [*].identity.principalId --out tsv) >> $logfile
+spID1=$(az resource list  --resource-group "rhel-ha" -n "node1" --query [*].identity.principalId --out tsv) >> $logfile
 
-az role assignment create --assignee $spID1 --role 'Virtual Machine Contributor' --scope /subscriptions/$subscriptionID/resourceGroups/$rgname/providers/Microsoft.Compute/virtualMachines/prod-cl1-0 >> $logfile
+az role assignment create --assignee $spID1 --role 'Virtual Machine Contributor' --scope /subscriptions/$subscriptionID/resourceGroups/$rgname/providers/Microsoft.Compute/virtualMachines/node0 >> $logfile
 
-az role assignment create --assignee $spID1 --role 'Virtual Machine Contributor' --scope /subscriptions/$subscriptionID/resourceGroups/$rgname/providers/Microsoft.Compute/virtualMachines/prod-cl1-1 >> $logfile
+az role assignment create --assignee $spID1 --role 'Virtual Machine Contributor' --scope /subscriptions/$subscriptionID/resourceGroups/$rgname/providers/Microsoft.Compute/virtualMachines/node1 >> $logfile
 
 #sleep 120
 
@@ -151,7 +151,7 @@ if [[ "$version" =~ ^7[._][1-9] ]]; then
     --vm-name $vmname1 \
     --name customScript \
     --publisher Microsoft.Azure.Extensions \
-    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/spalnatik/rhelha/main/fc7.sh"],"commandToExecute": "./fc7.sh"}' >> $logfile
+    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/esanchezvela/rhelha/main/fc7.sh"],"commandToExecute": "./fc7.sh"}' >> $logfile
 elif [[ "$version" =~ ^8[._][1-9] ]]; then
     echo "The offer is rhel8 image"
     az vm extension set \
@@ -159,7 +159,7 @@ elif [[ "$version" =~ ^8[._][1-9] ]]; then
     --vm-name $vmname1 \
     --name customScript \
     --publisher Microsoft.Azure.Extensions \
-    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/spalnatik/rhelha/main/fenceconfig.sh"],"commandToExecute": "./fenceconfig.sh"}' >> $logfile
+    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/esanchezvela/rhelha/main/fenceconfig.sh"],"commandToExecute": "./fenceconfig.sh"}' >> $logfile
 else
     echo "The offer version is not in the 7.x or 8.x "
     # Add your desired action here for other versions (if needed)
@@ -173,14 +173,14 @@ az vm extension set \
     --vm-name $vmname1 \
     --name customScript \
     --publisher Microsoft.Azure.Extensions \
-    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/spalnatik/rhelha/main/kdump.sh"],"commandToExecute": "./kdump.sh"}' >> $logfile
+    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/esanchezvela/rhelha/main/kdump.sh"],"commandToExecute": "./kdump.sh"}' >> $logfile
 
 az vm extension set \
     --resource-group $rgname \
     --vm-name $vmname2 \
     --name customScript \
     --publisher Microsoft.Azure.Extensions \
-    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/spalnatik/rhelha/main/kdump.sh"],"commandToExecute": "./kdump.sh"}' >> $logfile 
+    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/esanchezvela/rhelha/main/kdump.sh"],"commandToExecute": "./kdump.sh"}' >> $logfile 
 
 echo "config kdump on node1"
 
@@ -189,13 +189,13 @@ az vm extension set \
     --vm-name $vmname1 \
     --name customScript \
     --publisher Microsoft.Azure.Extensions \
-    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/spalnatik/rhelha/main/kdump_config.sh"],"commandToExecute": "./kdump_config.sh"}' >> $logfile
+    --protected-settings '{"fileUris": ["https://raw.githubusercontent.com/esanchezvela/rhelha/main/kdump_config.sh"],"commandToExecute": "./kdump_config.sh"}' >> $logfile
 
 echo " restarting kdump service on both nodes"
 
-az vm run-command invoke   --resource-group $rgname   --name $vmname1   --command-id RunShellScript   --scripts "firewall-cmd --add-port=7410/udp;firewall-cmd --add-port=7410/udp --permanent;systemctl restart kdump" >> $logfile
+az vm run-command invoke   --resource-group $rgname   --name $vmname1   --command-id RunShellScript   --scripts "firewall-cmd --add-port=7410/udp --permanent;firewall-cmd --reload;systemctl restart kdump" >> $logfile
 
-az vm run-command invoke   --resource-group $rgname   --name $vmname2   --command-id RunShellScript   --scripts "firewall-cmd --add-port=7410/udp;firewall-cmd --add-port=7410/udp --permanent;systemctl restart kdump" >> $logfile
+az vm run-command invoke   --resource-group $rgname   --name $vmname2   --command-id RunShellScript   --scripts "firewall-cmd --add-port=7410/udp --permanent;firewall-cmd --reload;systemctl restart kdump" >> $logfile
 
 echo 'Updating NSGs with public IP and allowing ssh access from that IP'
 my_pip=`curl ifconfig.io`
