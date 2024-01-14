@@ -9,7 +9,7 @@ Added another option to choose the type of azure fencing agent :
 1) service principal
 2) managed Identity
 
-![image](https://github.com/spalnatik/rhelha/assets/139609488/4a4e9f40-2d35-4c17-b89d-faf505278ba9)
+![image](https://github.com/esanchezvela/rhelha/assets/139609488/4a4e9f40-2d35-4c17-b89d-faf505278ba9)
 
 
 **Setting up Pacemaker on Red Hat Enterprise Linux in Azure**
